@@ -2,9 +2,6 @@ package models;
 
 import java.util.Date;
 
-/**
- * Created by uc on 2016/3/28.
- */
 public class Pixiv {
     private Integer id;
     private String name;
