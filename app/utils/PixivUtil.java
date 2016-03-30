@@ -35,6 +35,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import services.PixivService;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
@@ -52,12 +53,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ArPixivUtil {
+public class PixivUtil {
 
     /**
      * 打印日志
      */
-    private final static Logger logger = LoggerFactory.getLogger(ArPixivUtil.class);
+    private final static Logger logger = LoggerFactory.getLogger(PixivUtil.class);
 
     public final static String DOWNLOAD_PATH = "public/images/base/download/pixiv/";
     public final static String MASTER_PATH = "public/images/base/download/pixiv_master/";
@@ -114,10 +115,10 @@ public class ArPixivUtil {
      */
     private static final HttpHost DEFAULT_TARGETHOST = new HttpHost(BASE_URL, 80);
 
-    public ArPixivUtil() {
+    public PixivUtil() {
     }
 
-    public ArPixivUtil(String authorId, ArPixivService arPixivService) throws Exception {
+    public PixivUtil(String authorId, PixivService pixivService) throws Exception {
         if (!checkLoginInfoEffective()) {
             throw new Exception("用于登录PIXIV的Cookie过期，请重新设置");
         } else {
@@ -130,7 +131,7 @@ public class ArPixivUtil {
             AUTHOR_IDS.add(authorId);
             HANDLING_FILE_MAP.put(authorId, "downloading...");
             this.authorId = authorId;
-            ARPIXIVSERVICE = arPixivService;
+            ARPIXIVSERVICE = pixivService;
             TOTALDOWNLOADED = new AtomicInteger(0);
         }
     }
@@ -423,7 +424,7 @@ public class ArPixivUtil {
         for (Element e : eles) {
             String target = BASE_URL + e.attr("href").toString().substring(1);
             if (target == null) return;
-            ArPixivDO arpTemp = new ArPixivDO();
+            Pixiv arpTemp = new Pixiv();
             enterIllust(target, illusts_url, arpTemp);
         }
         Elements pages = doc.select("a[rel=next]._button");
@@ -527,7 +528,7 @@ public class ArPixivUtil {
 
 
     //进入“图片详细信息”页面
-    private void enterIllust(String target, String refer, ArPixivDO arpTemp) {
+    private void enterIllust(String target, String refer, Pixiv arpTemp) {
 
         HttpGet httpget = new HttpGet(target);
         httpget.setHeader(HttpHeaders.REFERER, refer);
@@ -615,7 +616,7 @@ public class ArPixivUtil {
         }
     }
 
-    private String handleMutipleFile(String url, String refer, ArPixivDO arpTemp) {
+    private String handleMutipleFile(String url, String refer, Pixiv arpTemp) {
         HttpGet httpget = new HttpGet(url);
         httpget.setHeader(HttpHeaders.REFERER, refer);
         String savePath = null;
@@ -799,7 +800,7 @@ public class ArPixivUtil {
     public static void main(String[] args) {
 
         //login("296306654@qq.com", "密码");
-        //   new ArPixivUtil("396769", null).doGetByAuthorAync();
+        //   new PixivUtil("396769", null).doGetByAuthorAync();
       /*  this.AUTHOR_ID = "396769";
        // getByAuthor("1");
       //  logout();

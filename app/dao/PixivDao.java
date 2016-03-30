@@ -1,4 +1,8 @@
 package dao;
 
-public class PixivDao {
+import models.Pixiv;
+
+public class PixivDao extends BaseDao<Pixiv>{
+
+
 }

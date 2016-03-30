@@ -1,6 +1,6 @@
-package services.base;
+package services;
 
-
+import dao.BaseDao;
 import dao.PixivDao;
 import models.Pixiv;
 
@@ -14,18 +14,11 @@ import java.util.regex.Pattern;
 public class PixivService {
     @Inject
     PixivDao dao;
-    @Inject
-    ArLogDao log;
 
     private static int PAGE_ITEMS = 20, PAGE_WIDTH = 7;
 
-    @Override
-    protected BaseOperation<Pixiv> getEntityDao() {
+    protected BaseDao<Pixiv> getEntityDao() {
         return dao;
-    }
-
-    public Map<String,Object> queryAll(BaseParamVO vo){
-        return null;
     }
 
     public String [] getAuthors(boolean moren) {

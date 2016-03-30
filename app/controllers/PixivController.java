@@ -3,33 +3,32 @@ package controllers;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import models.Pixiv;
 import play.Logger;
 import play.mvc.Controller;
 import services.PixivService;
+import utils.PixivUtil;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
 public class PixivController extends Controller {
 
-}
-
-public class ArPixiv {
-
     @Inject
-    private static PixivService arPixivService;
+    private static PixivService pixivService;
 
     public static void queryAll(){
         try{
-            if(arPixivService == null){
-                Logger.error("the arPixivService is null");
+            if(pixivService == null){
+                Logger.error("the pixivService is null");
             }
             BaseParamVO vo = (BaseParamVO) formatData(BaseParamVO.class);
-            Map<String, Object> map = arPixivService.queryAll(vo);
+            Map<String, Object> map = pixivService.queryAll(vo);
             Gson gb = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
             renderJSON(gb.toJson(map));
         }catch(Exception e){
@@ -38,7 +37,7 @@ public class ArPixiv {
     }
 
     public static void find(int id){
-        ArPixivDO tmpDO = arPixivService.find( id);
+        Pixiv tmpDO = pixivService.find( id);
         if( tmpDO == null){
             renderJSON("{}");
         }
@@ -52,7 +51,7 @@ public class ArPixiv {
                 Logger.error("作者ID不能为空");
                 throw new Exception("作者ID不能为空.");
             }
-            ArPixivUtil putil = new ArPixivUtil(authorId, arPixivService);
+            PixivUtil putil = new PixivUtil(authorId, pixivService);
             putil.doGetByAuthorAync();
             returnMap.put("msg", "正在下载中，请等待...");
             renderJSON(returnMap);
@@ -61,9 +60,9 @@ public class ArPixiv {
             returnMap.put("msg", e.getMessage());
             renderJSON(returnMap);
         }
-       /* List<String> list = ArPixivUtil.getAuthorIdList();
+       /* List<String> list = PixivUtil.getAuthorIdList();
         for(String authorId: list){
-            ArPixivUtil putil = new ArPixivUtil(authorId, arPixivService);
+            PixivUtil putil = new PixivUtil(authorId, pixivService);
             putil.getByAuthorAync();
         }
         renderJSON(returnMap);*/
@@ -71,7 +70,7 @@ public class ArPixiv {
     public static void delete(int idstr){
         Map<String, Object> returnMap = new HashMap<String, Object>();
         try{
-            if(arPixivService.delete( idstr, getLoginUser() ) != 0 ){
+            if(pixivService.delete( idstr, getLoginUser() ) != 0 ){
                 returnMap.put("success", true);
             }
             renderJSON(returnMap);
@@ -86,7 +85,7 @@ public class ArPixiv {
         System.out.println(author);
         Map<String, Object> returnMap = new HashMap<String, Object>();
         try{
-            arPixivService.deleteByAuthor(author);
+            pixivService.deleteByAuthor(author);
             returnMap.put("msg", "删除成功~");
             returnMap.put("success", true);
             renderJSON(returnMap);
@@ -100,7 +99,7 @@ public class ArPixiv {
 
     public static void deleteAll() {
         Map<String, Object> returnMap = new HashMap<String, Object>();
-        File file = new File(ArPixivUtil.DOWNLOAD_PATH);
+        File file = new File(PixivUtil.DOWNLOAD_PATH);
         File[] files = file.listFiles();
         if(files.length == 0) {
             returnMap.put("msg", "不存在。");
@@ -110,7 +109,7 @@ public class ArPixiv {
         for(File f : files) {
             if(f.isDirectory()) {
                 try {
-                    ArPixivUtil.deleteAuthor(f.getName());
+                    PixivUtil.deleteAuthor(f.getName());
                 } catch (Exception e) {
                     Logger.error("删除错误, 请重试~", e, params);
                     returnMap.put("msg", e.getMessage());
@@ -120,7 +119,7 @@ public class ArPixiv {
             }
         }
         try {
-            arPixivService.deleteAll();
+            pixivService.deleteAll();
         } catch (Exception e) {
             Logger.error("删除错误, 请重试~", e, params);
             returnMap.put("msg", e.getMessage());
@@ -140,8 +139,8 @@ public class ArPixiv {
             Type type = new TypeToken<Map<String, String>>(){}.getType();
             Map<String, String> paramsMap = new Gson().fromJson(paramsStr, type);
 
-            List<ArPixivDO> arpList = arPixivService.queryByPage(paramsMap, returnMap);
-            returnMap.put("authors", arPixivService.getAuthors(true));
+            List<Pixiv> arpList = pixivService.queryByPage(paramsMap, returnMap);
+            returnMap.put("authors", pixivService.getAuthors(true));
             returnMap.put("pixivList", arpList);
             returnMap.put("success", true);
             returnMap.put("msg", "成功");
@@ -158,7 +157,7 @@ public class ArPixiv {
         Map<String, Object> returnMap = new HashMap<String, Object>();
         try{
             returnMap.put("msg", "成功");
-            returnMap.put("authors", arPixivService.getAuthors(false));
+            returnMap.put("authors", pixivService.getAuthors(false));
             renderJSON(returnMap);
         } catch (Exception e) {
             e.printStackTrace();
@@ -172,7 +171,7 @@ public class ArPixiv {
         String sessid = params.get("sessid");
         String token = params.get("token");
         String target = "PHPSESSID=" + sessid + ";" + "device_token=" + token + ";";
-        ArPixivUtil.saveLoginInfo(target);
+        PixivUtil.saveLoginInfo(target);
         returnMap.put("msg", "成功");
         returnMap.put("success", true);
         renderJSON(returnMap);

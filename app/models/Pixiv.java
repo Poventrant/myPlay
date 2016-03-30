@@ -1,9 +1,13 @@
 package models;
 
+import play.db.jpa.Model;
+
+import javax.inject.Singleton;
 import java.util.Date;
 
-public class Pixiv {
-    private Integer id;
+@Singleton
+public class Pixiv extends Model{
+    private Long id;
     private String name;
     private String size;
     private String masterPath;
@@ -31,11 +35,11 @@ public class Pixiv {
         this.picno = other.getPicno();
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
